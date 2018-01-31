@@ -1,0 +1,15 @@
+# File produced by Open Asset Import Library (http://www.assimp.sf.net)
+# (assimp v3.1.187496374)
+
+newmtl train
+Kd 0.8 0.8 0.8
+illum 1
+
+newmtl train2
+Kd 0.64 0.64 0.64
+Ka 0 0 0
+Ks 0.25 0.25 0.25
+Ke 0 0 0
+Ns 9.60784
+illum 2
+
