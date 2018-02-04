@@ -32,16 +32,7 @@ namespace Trainsporting
         /// <returns></returns>
         public override Vector3[] GetVerts()
         {
-            List<Vector3> verts = new List<Vector3>();
-
-            foreach (var face in faces)
-            {
-                verts.Add(face.Item1.Position);
-                verts.Add(face.Item2.Position);
-                verts.Add(face.Item3.Position);
-            }
-
-            return verts.ToArray();
+           return verts;
         }
 
         /// <summary>
@@ -69,16 +60,7 @@ namespace Trainsporting
         /// <returns></returns>
         public override Vector2[] GetTextureCoords()
         {
-            List<Vector2> coords = new List<Vector2>();
-
-            foreach (var face in faces)
-            {
-                coords.Add(face.Item1.TextureCoord);
-                coords.Add(face.Item2.TextureCoord);
-                coords.Add(face.Item3.TextureCoord);
-            }
-
-            return coords.ToArray();
+            return coords;
         }
 
 
@@ -323,6 +305,39 @@ namespace Trainsporting
 
         private void SetTextureCoords()
         {
+            List<Vector2> _coords = new List<Vector2>();
+
+            foreach (var face in faces)
+            {
+                _coords.Add(face.Item1.TextureCoord);
+                _coords.Add(face.Item2.TextureCoord);
+                _coords.Add(face.Item3.TextureCoord);
+            }
+
+            coords = _coords.ToArray();
+        }
+
+        private void SetNormals()
+        {
+            if (base.GetNormals().Length > 0)
+            {
+                normals = base.GetNormals();
+            }
+
+            List<Vector3> _normals = new List<Vector3>();
+
+            foreach (var face in faces)
+            {
+                _normals.Add(face.Item1.Normal);
+                _normals.Add(face.Item2.Normal);
+                _normals.Add(face.Item3.Normal);
+            }
+
+            normals = _normals.ToArray();
+        }
+
+        private void SetVerts()
+        {
             List<Vector3> _verts = new List<Vector3>();
 
             foreach (var face in faces)
@@ -333,16 +348,6 @@ namespace Trainsporting
             }
 
             verts = _verts.ToArray();
-        }
-
-        private void SetNormals()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void SetVerts()
-        {
-            throw new NotImplementedException();
         }
 
         private class TempVertex
@@ -361,21 +366,7 @@ namespace Trainsporting
 
         public override Vector3[] GetNormals()
         {
-            if (base.GetNormals().Length > 0)
-            {
-                return base.GetNormals();
-            }
-
-            List<Vector3> normals = new List<Vector3>();
-
-            foreach (var face in faces)
-            {
-                normals.Add(face.Item1.Normal);
-                normals.Add(face.Item2.Normal);
-                normals.Add(face.Item3.Normal);
-            }
-
-            return normals.ToArray();
+            return normals;
         }
 
         public override int NormalCount

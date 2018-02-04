@@ -196,29 +196,56 @@ namespace Trainsporting
         {
             base.OnUpdateFrame(e);
 
-            List<Vector3> verts = new List<Vector3>();
-            List<int> inds = new List<int>();
-            List<Vector3> colors = new List<Vector3>();
-            List<Vector2> texcoords = new List<Vector2>();
-            List<Vector3> normals = new List<Vector3>();
+            int vertsCount = 0, indsCount = 0, texcoordsCount = 0, normalsCount = 0;
+            Vector3[][] verts = new Vector3[objects.Count][];
+            int[][] inds = new int[objects.Count][];
+            Vector3[][] colors = new Vector3[objects.Count][];
+            Vector2[][] texcoords = new Vector2[objects.Count][];
+            Vector3[][] normals = new Vector3[objects.Count][];
 
             // Assemble vertex and indice data for all volumes
             int vertcount = 0;
+            int index = 0;
             foreach (Volume v in objects)
             {
-                verts.AddRange(v.GetVerts().ToList());
-                inds.AddRange(v.GetIndices(vertcount).ToList());
+                verts[index] = v.GetVerts();
+                vertsCount += verts[index].Length;
+                inds[index] = v.GetIndices(vertcount);
+                indsCount += inds[index].Length;
+
                 //colors.AddRange(v.GetColorData().ToList());
-                texcoords.AddRange(v.GetTextureCoords());
-                normals.AddRange(v.GetNormals().ToList());
+                texcoords[index] = v.GetTextureCoords();
+                texcoordsCount += texcoords[index].Length;
+
+                normals[index] = v.GetNormals();
+                normalsCount += normals[index].Length;
+
+                index++;
                 vertcount += v.VertCount;
             }
 
-            vertdata = verts.ToArray();
-            indicedata = inds.ToArray();
-            coldata = colors.ToArray();
-            texcoorddata = texcoords.ToArray();
-            normdata = normals.ToArray();
+            vertdata = new Vector3[vertsCount];
+            indicedata = new int[indsCount];
+            coldata = colors[0];
+            texcoorddata = new Vector2[texcoordsCount];
+            normdata = new Vector3[normalsCount];
+
+            vertsCount = 0; indsCount = 0; texcoordsCount = 0; normalsCount = 0;
+
+            for (int i = 0; i < objects.Count; i++)
+            {
+                Array.Copy(verts[i], 0, vertdata, vertsCount, verts[i].Length);
+                vertsCount += verts[i].Length;
+
+                Array.Copy(inds[i], 0, indicedata, indsCount, inds[i].Length);
+                indsCount += inds[i].Length;
+
+                Array.Copy(texcoords[i], 0, texcoorddata, texcoordsCount, texcoords[i].Length);
+                texcoordsCount += texcoords[i].Length;
+
+                Array.Copy(normals[i], 0, normdata, normalsCount, normals[i].Length);
+                normalsCount += normals[i].Length;
+            }
 
             GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vPosition"));
 
