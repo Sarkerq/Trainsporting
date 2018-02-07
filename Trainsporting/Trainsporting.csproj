@@ -50,6 +50,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Cube.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="ArrayExtensions.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="Material.cs" />
     <Compile Include="ObjVolume.cs" />
@@ -59,6 +60,8 @@
     <Compile Include="Sierpinski.cs" />
     <Compile Include="Tetra.cs" />
     <Compile Include="TexturedCube.cs" />
+    <Compile Include="Track.cs" />
+    <Compile Include="Train.cs" />
     <Compile Include="Volume.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -73,6 +76,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="fs_lit.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="fs_gourard.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="fs_lit_advanced.glsl">
@@ -98,13 +104,28 @@
     <None Include="teapot.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="track.mtl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="track.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="train.mtl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="train.obj">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="tree.mtl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="tree.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="vs.glsl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="vs_gourard.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="vs_lit.glsl">
@@ -118,16 +139,31 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="basic2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="basic1.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="basic3.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="earth.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="earthspec.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="grass.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="opentksquare.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="opentksquare2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="tree.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

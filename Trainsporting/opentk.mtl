@@ -8,8 +8,8 @@
  Ka 0.1880 0.1880 0.1880
  Kd 1.0000 1.0000 1.0000
  Ks 0.1000 0.1000 0.1000
- map_Ka opentksquare.png
- map_Kd opentksquare.png
+ map_Ka grass.png
+ map_Kd grass.png
  
 newmtl opentk2
  Ns 10.0000

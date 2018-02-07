@@ -81,5 +81,54 @@ main()
   // Spotlight, specular reflections are also limited by angle
   outputColor = outputColor + vec4(material_specular * lights[i].color, 0.0) * material_specularreflection;
  }
-
+ void light( int lightIndex, vec3 position, vec3 norm, out vec3 ambient, out vec3 diffuse, out vec3 spec )
+{
+	vec3 n = normalize( norm );
+	vec3 s = normalize( lights[lightIndex].position - position );
+	vec3 v = normalize( -position );
+	vec3 r = reflect( -s, n );
+ 
+	ambient = lights[lightIndex].ambientIntensity * Material.Ka;
+ 
+	float sDotN = max( dot( s, n ), 0.0 );
+	diffuse = lights[lightIndex].diffuseIntensity * Material.Kd * sDotN;
+ 
+ 
+	spec = lights[lightIndex].Ls * Material.Ks * pow( max( dot(r,v) , 0.0 ), Material.Shininess ); 
+}
+ 
+void main()
+{
+ 
+	vec3 ambientSum = vec3(0);
+	vec3 diffuseSum = vec3(0);
+	vec3 specSum = vec3(0);
+	vec3 ambient, diffuse, spec;
+ 
+	if ( gl_FrontFacing )
+	{
+		for( int i=0; i<LIGHTCOUNT; ++i )
+		{
+			light( i, data.Position, data.Normal, ambient, diffuse, spec );
+			ambientSum += ambient;
+			diffuseSum += diffuse;
+			specSum += spec;
+		}
+	}
+	else
+	{
+		for( int i=0; i<LIGHTCOUNT; ++i )
+		{
+			light( i, data.Position, -data.Normal, ambient, diffuse, spec );
+			ambientSum += ambient;
+			diffuseSum += diffuse;
+			specSum += spec;
+		}
+	}
+	ambientSum /= LIGHTCOUNT;
+ 
+	vec4 texColor = texture(Tex, data.TexCoord);
+ 
+	FragColor = vec4( ambientSum + diffuseSum, 1 ) * texColor + vec4( specSum, 1 );
+}
 }

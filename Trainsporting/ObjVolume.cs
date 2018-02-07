@@ -25,6 +25,7 @@ namespace Trainsporting
         Vector3[] normals;
         Vector3[] verts;
         Vector2[] coords;
+        int[] indices;
 
         /// <summary>
         /// Get vertice data for this object
@@ -42,7 +43,11 @@ namespace Trainsporting
         /// <returns></returns>
         public override int[] GetIndices(int offset = 0)
         {
-            return Enumerable.Range(offset, IndiceCount).ToArray();
+            if (offset == 0) return indices;
+            int[] offsetIndices = new int[IndiceCount];
+            for (int i = 0; i < IndiceCount; i++)
+                offsetIndices[i] = indices[i] + offset;
+            return offsetIndices;
         }
 
         /// <summary>
@@ -298,9 +303,15 @@ namespace Trainsporting
             vol.SetVerts();
             vol.SetNormals();
             vol.SetTextureCoords();
+            vol.SetIndices();
 
 
             return vol;
+        }
+
+        private void SetIndices()
+        {
+            indices =  Enumerable.Range(0, IndiceCount).ToArray();
         }
 
         private void SetTextureCoords()

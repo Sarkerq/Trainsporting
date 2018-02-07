@@ -9,6 +9,7 @@ using System.Drawing;
 using System.IO;
 using OpenTK.Graphics;
 using System.Drawing.Imaging;
+using OpenTK.Input;
 
 namespace Trainsporting
 {
@@ -19,9 +20,9 @@ namespace Trainsporting
 
         int ibo_elements;
 
-        Dictionary<String, Material> materials = new Dictionary<string, Material>();
+        public static Dictionary<String, Material> materials = new Dictionary<string, Material>();
 
-        Dictionary<string, int> textures = new Dictionary<string, int>();
+        public static Dictionary<string, int> textures = new Dictionary<string, int>();
 
         Vector3[] vertdata;
         Vector3[] coldata;
@@ -29,6 +30,10 @@ namespace Trainsporting
         Vector3[] normdata;
 
         List<Volume> objects = new List<Volume>();
+
+        List<Track> tracks = new List<Track>();
+
+
         int[] indicedata;
 
         List<Light> lights = new List<Light>();
@@ -40,6 +45,11 @@ namespace Trainsporting
         Vector2 lastMousePos = new Vector2();
 
         Matrix4 view = Matrix4.Identity;
+        int lightingMode = 1;
+
+        KeyboardState keyboardState, lastKeyboardState;
+
+        Train train;
 
         public Game() : base(512, 512, new GraphicsMode(32, 24, 0, 4))
         {
@@ -64,25 +74,22 @@ namespace Trainsporting
 
             loadResources();
 
-            activeShader = "lit_advanced";
+            activeShader = "gourard";
 
             setupScene();
         }
         private void loadResources()
         {
             // Load shaders from file
-            shaders.Add("default", new ShaderProgram("vs.glsl", "fs.glsl", true));
-            shaders.Add("textured", new ShaderProgram("vs_tex.glsl", "fs_tex.glsl", true));
-            shaders.Add("normal", new ShaderProgram("vs_norm.glsl", "fs_norm.glsl", true));
-            shaders.Add("lit", new ShaderProgram("vs_lit.glsl", "fs_lit.glsl", true));
-            shaders.Add("lit_multiple", new ShaderProgram("vs_lit.glsl", "fs_lit_multiple.glsl", true));
             shaders.Add("lit_advanced", new ShaderProgram("vs_lit.glsl", "fs_lit_advanced.glsl", true));
+            shaders.Add("gourard", new ShaderProgram("vs_gourard.glsl", "fs_gourard.glsl", true));
 
             // Load materials and textures
             loadMaterials("opentk.mtl");
             loadMaterials("earth.mtl");
             loadMaterials("train.mtl");
-
+            loadMaterials("track.mtl");
+            loadMaterials("tree.mtl");
         }
 
         private void setupScene()
@@ -101,33 +108,66 @@ namespace Trainsporting
             tc2.Material = materials["opentk2"];
             objects.Add(tc2);
 
-            ObjVolume earth = ObjVolume.LoadFromFile("earth.obj");
-            earth.TextureID = textures["earth.png"];
-            earth.Position += new Vector3(1f, 1f, -2f);
-            earth.Material = materials["earth"];
-            objects.Add(earth);
+            //ObjVolume earth = ObjVolume.LoadFromFile("earth.obj");
+            //earth.TextureID = textures["earth.png"];
+            //earth.Position += new Vector3(1f, 1f, -2f);
+            //earth.Material = materials["earth"];
+            //objects.Add(earth);
 
-            ObjVolume train = ObjVolume.LoadFromFile("train.obj");
-            train.TextureID = textures["earth.png"];
-            train.Position += new Vector3(1f, 1f, -2f);
-            train.Material = materials["train"];
-            objects.Add(train);
+            ObjVolume trainModel = ObjVolume.LoadFromFile("train.obj");
+            trainModel.TextureID = textures["basic1.png"];
+            trainModel.Position += new Vector3(0, 0.7f, -2f);
+            trainModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
+            trainModel.Scale = new Vector3(10.0f, 10.0f, 10.0f);
+            trainModel.Material = materials["AVE-BLANCO"];
+            objects.Add(trainModel);
+
+            ObjVolume trackModel = ObjVolume.LoadFromFile("track.obj");
+            trackModel.TextureID = textures["basic2.png"];
+            trackModel.Position = new Vector3(1.1f, -1.6f, 0);
+            trackModel.Scale = new Vector3(0.75f, 0.75f, 2.4f);
+            trackModel.Material = materials["AVE-BLANCO"];
+            objects.Add(trackModel);
+            tracks.Add(new Track(trackModel, 0));
+
+            Track lastTrack = tracks[0];
+            for(int i = 0; i< 159; i++)
+            {
+                lastTrack = new Track(lastTrack, (float)Math.PI / 80);
+                objects.Add(lastTrack.Model);
+                tracks.Add(new Track(lastTrack, 0));
+
+            }
+
+            train = new Train(trainModel, tracks);
+
+
+            for (int i = 0; i < 100; i++)
+            {
+                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
+                treeModel.TextureID = textures["tree.png"];
+                treeModel.Position += new Vector3(-100.0f + (float)(100 - i / 2.0) * (float)Math.Sin(i), 0.7f, -2f + (float)(100 - i / 2.0) * (float)Math.Cos(i));
+                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
+                treeModel.Scale = new Vector3(1.0f, 1.0f, 1.0f);
+                treeModel.Material = materials["AVE-BLANCO"];
+                objects.Add(treeModel);
+            }
 
             TexturedCube floor = new TexturedCube();
             floor.TextureID = textures[materials["opentk1"].DiffuseMap];
-            floor.Scale = new Vector3(20, 0.1f, 20);
+            floor.Scale = new Vector3(2000, 0.1f, 2000);
             floor.Position += new Vector3(0, -2, 0);
             floor.CalculateNormals();
             floor.Material = materials["opentk1"];
             objects.Add(floor);
 
-            TexturedCube backWall = new TexturedCube();
-            backWall.TextureID = textures[materials["opentk1"].DiffuseMap];
-            backWall.Scale = new Vector3(20, 20, 0.1f);
-            backWall.Position += new Vector3(0, 8, -10);
-            backWall.CalculateNormals();
-            backWall.Material = materials["opentk1"];
-            objects.Add(backWall);
+            //TexturedCube backWall = new TexturedCube();
+            //backWall.TextureID = textures[materials["opentk1"].DiffuseMap];
+            //backWall.Scale = new Vector3(20, 20, 0.1f);
+            //backWall.Position += new Vector3(0, 8, -10);
+            //backWall.CalculateNormals();
+            //backWall.Material = materials["opentk1"];
+            //objects.Add(backWall);
 
             // Create lights
             Light sunLight = new Light(new Vector3(), new Vector3(0.7f, 0.7f, 0.7f));
@@ -191,10 +231,31 @@ namespace Trainsporting
                 }
             }
         }
-
+        public bool KeyPress(Key key)
+        {
+            return (keyboardState[key] && (keyboardState[key] != lastKeyboardState[key]));
+        }
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+
+            // Get current state
+            keyboardState = OpenTK.Input.Keyboard.GetState();
+
+            // Check Key Presses
+            if (KeyPress(Key.LShift))
+            {
+                if (objects[3].TextureID == textures["basic2.png"])
+                    objects[3].TextureID = textures["basic3.png"];
+                else
+                    objects[3].TextureID = textures["basic2.png"];
+
+            }
+
+            // Store current state for next comparison;
+            lastKeyboardState = keyboardState;
+
+
 
             int vertsCount = 0, indsCount = 0, texcoordsCount = 0, normalsCount = 0;
             Vector3[][] verts = new Vector3[objects.Count][];
@@ -287,11 +348,14 @@ namespace Trainsporting
             objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
             objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
 
+            train.UpdatePosition(0.1f);
+            //objects[2].Position += new Vector3(0, 0, 0.001f);
+
             // Update model view matrices
             foreach (Volume v in objects)
             {
                 v.CalculateModelMatrix();
-                v.ViewProjectionMatrix = cam.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 40.0f);
+                v.ViewProjectionMatrix = cam.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 400.0f);
                 v.ModelViewProjectionMatrix = v.ModelMatrix * v.ViewProjectionMatrix;
             }
 
@@ -327,6 +391,8 @@ namespace Trainsporting
             shaders[activeShader].EnableVertexAttribArrays();
 
             int indiceat = 0;
+
+            GL.Uniform1(shaders[activeShader].GetUniform("mode"), lightingMode);
 
             // Draw all objects
             foreach (Volume v in objects)
@@ -490,6 +556,9 @@ namespace Trainsporting
 
             switch (e.KeyChar)
             {
+                case (char)13:
+                    cam.Move(1.0f, 0.1f, 1.0f);
+                    break;
                 case 'w':
                     cam.Move(0f, 0.1f, 0f);
                     break;
@@ -507,6 +576,18 @@ namespace Trainsporting
                     break;
                 case 'e':
                     cam.Move(0f, 0f, -0.1f);
+                    break;
+                case '1':
+                    lightingMode = 0;
+                    break;
+                case '2':
+                    lightingMode = 1;
+                    break;
+                case '3':
+                    activeShader = "gourard";
+                    break;
+                case '4':
+                    activeShader = "lit_advanced";
                     break;
             }
         }
