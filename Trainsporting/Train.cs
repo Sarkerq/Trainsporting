@@ -9,22 +9,36 @@ namespace Trainsporting
         public ObjVolume Model;
         public List<Track> Tracks;
         public int currentTrackIndex;
+        public Vector3 TargetOffset = new Vector3();
 
         public Train(ObjVolume model, List<Track> tracks)
         {
             Model = model;
             Tracks = tracks;
-            currentTrackIndex = 1;
+            currentTrackIndex = 0;
         }
 
         public void UpdatePosition(float velocity)
         {
             float partOfTrackPassed = PartOfTrackPassed();
-            Model.Rotation = 
-                Vector3.Multiply(new Vector3(Tracks[currentTrackIndex].Model.Rotation), 1 - partOfTrackPassed) +
-                Vector3.Multiply(new Vector3(Tracks[NextTrackIndex()].Model.Rotation), partOfTrackPassed);
+            partOfTrackPassed = Math.Max(Math.Min(1, partOfTrackPassed), 0);
+            if (currentTrackIndex == Tracks.Count - 2)
+            {
+                Model.Rotation =
+                    Vector3.Multiply(new Vector3(Tracks[NextTrackIndex()].Model.Rotation), 1 - partOfTrackPassed) +
+                    Vector3.Multiply(new Vector3(Tracks[TrackIndexPlusTwo()].Model.Rotation[0],
+                                                  Tracks[TrackIndexPlusTwo()].Model.Rotation[1] + 2 * (float)Math.PI,
+                                                  Tracks[TrackIndexPlusTwo()].Model.Rotation[2]), partOfTrackPassed);
+            }
+            else
+            {
+                Model.Rotation =
+                    Vector3.Multiply(new Vector3(Tracks[NextTrackIndex()].Model.Rotation), 1 - partOfTrackPassed) +
+                    Vector3.Multiply(new Vector3(Tracks[TrackIndexPlusTwo()].Model.Rotation), partOfTrackPassed);
+            }
             Model.Position += new Vector3((float)(velocity * Math.Sin(Model.Rotation[1])), 0, (float)(velocity * Math.Cos(Model.Rotation[1])));
-
+            Model.Position += Vector3.Multiply(TargetOffset, 0.1f);
+            TargetOffset = Vector3.Multiply(TargetOffset, 0.9f);
             if (TrainOnNextTrack())
             {
                 SetNextTrack();
@@ -32,13 +46,15 @@ namespace Trainsporting
 
         }
 
+
+
         private float PartOfTrackPassed()
         {
             Vector3 trainTrackOffsetAngled = new Vector3(
                (float)Track.TRAIN_TRACK_OFFSET[0] * (float)Math.Sin(Model.Rotation[1]),
                Track.TRAIN_TRACK_OFFSET[1],
                (float)Track.TRAIN_TRACK_OFFSET[2] * (float)Math.Cos(Model.Rotation[1]));
-            Vector3 distance = Model.Position - Tracks[PreviousTrackIndex()].Model.Position - trainTrackOffsetAngled;
+            Vector3 distance = Model.Position - Tracks[currentTrackIndex].Model.Position - trainTrackOffsetAngled;
             return (float)Math.Sqrt(distance[0] * distance[0] + distance[1] * distance[1] + distance[2] * distance[2]) / Track.TRACK_LENGTH;
         }
 
@@ -55,14 +71,19 @@ namespace Trainsporting
                 (float)Track.TRAIN_TRACK_OFFSET[0] * (float)Math.Sin(Model.Rotation[1]),
                 Track.TRAIN_TRACK_OFFSET[1],
                 (float)Track.TRAIN_TRACK_OFFSET[2] * (float)Math.Cos(Model.Rotation[1]));
-            Model.Position = new Vector3(Tracks[currentTrackIndex].Model.Position) + trainTrackOffsetAngled;
-            Model.Rotation = new Vector3(Tracks[NextTrackIndex()].Model.Rotation);
+            Vector3 TargetPosition = new Vector3(Tracks[currentTrackIndex].Model.Position) + trainTrackOffsetAngled;
+            TargetOffset = TargetPosition - Model.Position;
+            //Model.Rotation = new Vector3(Tracks[NextTrackIndex()].Model.Rotation);
 
         }
 
         private int NextTrackIndex()
         {
-           return (currentTrackIndex + 1) % Tracks.Count;
+            return (currentTrackIndex + 1) % Tracks.Count;
+        }
+        private int TrackIndexPlusTwo()
+        {
+            return (currentTrackIndex + 2) % Tracks.Count;
         }
         private int PreviousTrackIndex()
         {

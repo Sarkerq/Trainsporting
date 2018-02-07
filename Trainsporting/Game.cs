@@ -348,7 +348,7 @@ namespace Trainsporting
             objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
             objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
 
-            train.UpdatePosition(0.1f);
+            train.UpdatePosition(2.1f);
             //objects[2].Position += new Vector3(0, 0, 0.001f);
 
             // Update model view matrices
