@@ -51,6 +51,12 @@ namespace Trainsporting
 
         Train train;
 
+        List<Track> branches;
+
+        public int NUMBER_OF_TRACKS_COLORED = 10;
+
+        public int TRACK_COLORING_OFFSET = 5;
+
         public Game() : base(512, 512, new GraphicsMode(32, 24, 0, 4))
         {
 
@@ -90,23 +96,24 @@ namespace Trainsporting
             loadMaterials("train.mtl");
             loadMaterials("track.mtl");
             loadMaterials("tree.mtl");
+            loadMaterials("rock.mtl");
         }
 
         private void setupScene()
         {
             // Create our objects
-            TexturedCube tc = new TexturedCube();
-            tc.TextureID = textures[materials["opentk1"].DiffuseMap];
-            tc.CalculateNormals();
-            tc.Material = materials["opentk1"];
-            objects.Add(tc);
+            //TexturedCube tc = new TexturedCube();
+            //tc.TextureID = textures[materials["opentk1"].DiffuseMap];
+            //tc.CalculateNormals();
+            //tc.Material = materials["opentk1"];
+            //objects.Add(tc);
 
-            TexturedCube tc2 = new TexturedCube();
-            tc2.Position += new Vector3(1f, 1f, 1f);
-            tc2.TextureID = textures[materials["opentk2"].DiffuseMap];
-            tc2.CalculateNormals();
-            tc2.Material = materials["opentk2"];
-            objects.Add(tc2);
+            //TexturedCube tc2 = new TexturedCube();
+            //tc2.Position += new Vector3(1f, 1f, 1f);
+            //tc2.TextureID = textures[materials["opentk2"].DiffuseMap];
+            //tc2.CalculateNormals();
+            //tc2.Material = materials["opentk2"];
+            //objects.Add(tc2);
 
             //ObjVolume earth = ObjVolume.LoadFromFile("earth.obj");
             //earth.TextureID = textures["earth.png"];
@@ -124,23 +131,58 @@ namespace Trainsporting
 
             ObjVolume trackModel = ObjVolume.LoadFromFile("track.obj");
             trackModel.TextureID = textures["basic2.png"];
-            trackModel.Position = new Vector3(1.1f, -1.6f, 0);
+            trackModel.Position = trainModel.Position - Track.TRAIN_TRACK_OFFSET;
             trackModel.Scale = new Vector3(0.75f, 0.75f, 2.4f);
             trackModel.Material = materials["AVE-BLANCO"];
             objects.Add(trackModel);
             tracks.Add(new Track(trackModel, 0));
 
             Track lastTrack = tracks[0];
-            for(int i = 0; i< 159; i++)
+            for (int i = 0; i < 79; i++)
             {
                 lastTrack = new Track(lastTrack, (float)Math.PI / 80);
                 objects.Add(lastTrack.Model);
-                tracks.Add(new Track(lastTrack, 0));
+                tracks.Add(lastTrack);
 
             }
 
-            train = new Train(trainModel, tracks);
+            branches = lastTrack.MakeBranchingPoint();
 
+            lastTrack = branches[0];
+            objects.Add(lastTrack.Model);
+            tracks.Add(lastTrack);
+            for (int i = 0; i < 79; i++)
+            {
+                lastTrack = new Track(lastTrack, (float)Math.PI / 80);
+                objects.Add(lastTrack.Model);
+                tracks.Add(lastTrack);
+
+            }
+            lastTrack = branches[1];
+            objects.Add(lastTrack.Model);
+            tracks.Add(lastTrack);
+            for (int i = 0; i < 49; i++)
+            {
+                lastTrack = new Track(lastTrack, 0);
+                objects.Add(lastTrack.Model);
+                tracks.Add(lastTrack);
+
+            }
+            for (int i = 0; i < 80; i++)
+            {
+                lastTrack = new Track(lastTrack, (float)Math.PI / 80);
+                objects.Add(lastTrack.Model);
+                tracks.Add(lastTrack);
+
+            }
+            for (int i = 0; i < 49; i++)
+            {
+                lastTrack = new Track(lastTrack, 0);
+                objects.Add(lastTrack.Model);
+                tracks.Add(lastTrack);
+
+            }
+            train = new Train(trainModel, tracks);
 
             for (int i = 0; i < 100; i++)
             {
@@ -152,6 +194,14 @@ namespace Trainsporting
                 treeModel.Material = materials["AVE-BLANCO"];
                 objects.Add(treeModel);
             }
+
+            //ObjVolume rockModel = ObjVolume.LoadFromFile("rock.obj");
+            //rockModel.TextureID = textures[materials["opentk1"].DiffuseMap];
+            //rockModel.Position += new Vector3(-100.0f, 0.7f, -2f );
+            //rockModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
+            //rockModel.Scale = new Vector3(1.0f, 1.0f, 1.0f);
+            //rockModel.Material = materials["AVE-BLANCO"];
+            //objects.Add(rockModel);
 
             TexturedCube floor = new TexturedCube();
             floor.TextureID = textures[materials["opentk1"].DiffuseMap];
@@ -245,11 +295,27 @@ namespace Trainsporting
             // Check Key Presses
             if (KeyPress(Key.LShift))
             {
-                if (objects[3].TextureID == textures["basic2.png"])
-                    objects[3].TextureID = textures["basic3.png"];
-                else
-                    objects[3].TextureID = textures["basic2.png"];
+                int branch0Index = tracks.IndexOf(branches[0]);
+                int branch1Index = tracks.IndexOf(branches[1]);
 
+                if (train.branchSetting == 1)
+                {
+                    train.branchSetting = 0;
+                    for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
+                    {
+                        tracks[branch0Index + i].Model.TextureID = textures["basic3.png"];
+                        tracks[branch1Index + i].Model.TextureID = textures["basic2.png"];
+                    }
+                }
+                else
+                {
+                    train.branchSetting = 1;
+                    for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
+                    {
+                        tracks[branch0Index + i].Model.TextureID = textures["basic2.png"];
+                        tracks[branch1Index + i].Model.TextureID = textures["basic3.png"];
+                    }
+                }
             }
 
             // Store current state for next comparison;
@@ -340,15 +406,15 @@ namespace Trainsporting
             // Update object positions
             time += (float)e.Time;
 
-            objects[0].Position = new Vector3(0.3f, -0.5f + (float)Math.Sin(time), -3.0f);
-            objects[0].Rotation = new Vector3(0.55f * time, 0.25f * time, 0);
-            objects[0].Scale = new Vector3(0.5f, 0.5f, 0.5f);
+            //objects[0].Position = new Vector3(0.3f, -0.5f + (float)Math.Sin(time), -3.0f);
+            //objects[0].Rotation = new Vector3(0.55f * time, 0.25f * time, 0);
+            //objects[0].Scale = new Vector3(0.5f, 0.5f, 0.5f);
 
-            objects[1].Position = new Vector3(-1f, 0.5f + (float)Math.Cos(time), -2.0f);
-            objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
-            objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
+            //objects[1].Position = new Vector3(-1f, 0.5f + (float)Math.Cos(time), -2.0f);
+            //objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
+            //objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
 
-            train.UpdatePosition(2.1f);
+            train.UpdatePosition(1.25f);
             //objects[2].Position += new Vector3(0, 0, 0.001f);
 
             // Update model view matrices
