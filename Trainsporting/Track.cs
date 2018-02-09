@@ -15,7 +15,7 @@ namespace Trainsporting
 
 
         public static float TRACK_LENGTH = 6.9f;
-        public static Vector3 TRAIN_TRACK_OFFSET = new Vector3(-1.1f, 2.3f, -2f);
+        public static Vector3 TRAIN_TRACK_OFFSET = new Vector3(-1.1f, 2.3f, 1.4f);
         public static float BRANCHING_POINT_ANGLE = (float)Math.PI / 80;
 
         public Track(ObjVolume model, int path)

@@ -13,16 +13,22 @@ namespace Trainsporting
         public Vector3 Orientation = new Vector3((float)Math.PI, 0f, 0f);
         public float MoveSpeed = 2.2f;
         public float MouseSensitivity = 0.01f;
+        public Vector3? Target = null;
 
         public Matrix4 GetViewMatrix()
         {
-            Vector3 lookat = new Vector3();
+            if (Target == null)
+            {
+                Vector3 lookat = new Vector3();
 
-            lookat.X = (float)(Math.Sin((float)Orientation.X) * Math.Cos((float)Orientation.Y));
-            lookat.Y = (float)Math.Sin((float)Orientation.Y);
-            lookat.Z = (float)(Math.Cos((float)Orientation.X) * Math.Cos((float)Orientation.Y));
+                lookat.X = (float)(Math.Sin((float)Orientation.X) * Math.Cos((float)Orientation.Y));
+                lookat.Y = (float)Math.Sin((float)Orientation.Y);
+                lookat.Z = (float)(Math.Cos((float)Orientation.X) * Math.Cos((float)Orientation.Y));
 
-            return Matrix4.LookAt(Position, Position + lookat, Vector3.UnitY);
+                return ViewMatrix.MyLookAt(Position, Position + lookat, Vector3.UnitY);
+            }
+            else
+                return ViewMatrix.MyLookAt(Position, (Vector3)Target, Vector3.UnitY);
         }
 
         public void Move(float x, float y, float z)

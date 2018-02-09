@@ -37,7 +37,7 @@ uniform vec3 material_specular;
 uniform float material_specExponent;
 
 // Array of lights used in the shader
-uniform Light lights[5];
+uniform Light lights[7];
 
 void
 main()
@@ -51,7 +51,7 @@ main()
  vec3 normalized_normal = normalize(v_norm);
  
  // Loop through lights, adding the lighting from each one
- for(int i = 0; i < 5; i++){
+ for(int i = 0; i < 7; i++){
   
   // Skip lights with no effect
   if(lights[i].color == vec3(0,0,0))

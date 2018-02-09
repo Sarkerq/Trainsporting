@@ -37,9 +37,14 @@ namespace Trainsporting
         int[] indicedata;
 
         List<Light> lights = new List<Light>();
-        const int MAX_LIGHTS = 5;
+        const int MAX_LIGHTS = 7;
 
-        Camera cam = new Camera();
+
+        Camera stillCamera = new Camera();
+        Camera followCamera = new Camera();
+        Camera onboardCamera = new Camera();
+
+        Camera activeCamera;
 
         float time = 0.0f;
         Vector2 lastMousePos = new Vector2();
@@ -57,7 +62,9 @@ namespace Trainsporting
 
         public int TRACK_COLORING_OFFSET = 5;
 
-        public Game() : base(512, 512, new GraphicsMode(32, 24, 0, 4))
+        Light spotLight;
+
+        public Game() : base(1440, 900, new GraphicsMode(32, 24, 0, 4))
         {
 
         }
@@ -92,7 +99,6 @@ namespace Trainsporting
 
             // Load materials and textures
             loadMaterials("opentk.mtl");
-            loadMaterials("earth.mtl");
             loadMaterials("train.mtl");
             loadMaterials("track.mtl");
             loadMaterials("tree.mtl");
@@ -101,6 +107,7 @@ namespace Trainsporting
 
         private void setupScene()
         {
+
             // Create our objects
             //TexturedCube tc = new TexturedCube();
             //tc.TextureID = textures[materials["opentk1"].DiffuseMap];
@@ -175,33 +182,65 @@ namespace Trainsporting
                 tracks.Add(lastTrack);
 
             }
-            for (int i = 0; i < 49; i++)
+            for (int i = 0; i < 50; i++)
             {
                 lastTrack = new Track(lastTrack, 0);
                 objects.Add(lastTrack.Model);
                 tracks.Add(lastTrack);
 
             }
+            int branch1Index = tracks.IndexOf(branches[1]);
             train = new Train(trainModel, tracks);
-
+            for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
+            {
+                tracks[branch1Index + i].Model.TextureID = textures["basic3.png"];
+            }
             for (int i = 0; i < 100; i++)
             {
                 ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
                 treeModel.TextureID = textures["tree.png"];
-                treeModel.Position += new Vector3(-100.0f + (float)(100 - i / 2.0) * (float)Math.Sin(i), 0.7f, -2f + (float)(100 - i / 2.0) * (float)Math.Cos(i));
+                treeModel.Position += new Vector3(180.0f + (float)(160 - i * 1.5) * (float)Math.Sin(i), 1.4f, -2f + (float)(160 - i * 1.5) * (float)Math.Cos(i));
                 treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-                treeModel.Scale = new Vector3(1.0f, 1.0f, 1.0f);
+                treeModel.Scale = new Vector3(2.0f, 2.5f, 2.0f);
+                treeModel.Material = materials["AVE-BLANCO"];
+                objects.Add(treeModel);
+            }
+            for (int i = 0; i < 80; i++)
+            {
+                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
+                treeModel.TextureID = textures["tree.png"];
+                treeModel.Position += new Vector3(210.0f + (float)(140 - i * 1.5) * (float)Math.Sin(i), 1.4f, -370f + (float)(140 - i * 1.5) * (float)Math.Cos(i));
+                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
+                treeModel.Scale = new Vector3(3.0f, 3.5f, 3.0f);
                 treeModel.Material = materials["AVE-BLANCO"];
                 objects.Add(treeModel);
             }
 
-            //ObjVolume rockModel = ObjVolume.LoadFromFile("rock.obj");
-            //rockModel.TextureID = textures[materials["opentk1"].DiffuseMap];
-            //rockModel.Position += new Vector3(-100.0f, 0.7f, -2f );
-            //rockModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-            //rockModel.Scale = new Vector3(1.0f, 1.0f, 1.0f);
-            //rockModel.Material = materials["AVE-BLANCO"];
-            //objects.Add(rockModel);
+            for (int i = 0; i < 70; i++)
+            {
+                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
+                treeModel.TextureID = textures["tree.png"];
+                treeModel.Position += tracks[i * 3].Model.Position +
+                    new Vector3(
+                        (float)(5) * (float)Math.Sqrt(Math.Abs(Math.Sin(tracks[i * 3].Model.Rotation[1]))) +
+                        (float)(35) * (float)Math.Abs(Math.Cos(i) + 0.45f) + 1.3f,
+                    1.4f,
+                    (float)(5) * (float)Math.Sqrt(Math.Abs(Math.Cos(tracks[i * 3].Model.Rotation[1]))) +
+                    (float)(25) * (float)Math.Abs(Math.Cos(i) + 1.5f) + 6.9f);
+                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
+                treeModel.Scale = new Vector3(4.0f, 5.0f, 4.0f);
+                treeModel.Material = materials["AVE-BLANCO"];
+                objects.Add(treeModel);
+            }
+
+
+            ObjVolume rockModel = ObjVolume.LoadFromFile("rock.obj");
+            rockModel.TextureID = textures["rock.png"];
+            rockModel.Position += new Vector3(-0.0f, 40.7f, -300f);
+            rockModel.Rotation = new Vector3(0, (float)Math.PI / 2, 0);
+            rockModel.Scale = new Vector3(5.0f, 5.0f, 5.0f);
+            rockModel.Material = materials["AVE-BLANCO"];
+            objects.Add(rockModel);
 
             TexturedCube floor = new TexturedCube();
             floor.TextureID = textures[materials["opentk1"].DiffuseMap];
@@ -220,27 +259,45 @@ namespace Trainsporting
             //objects.Add(backWall);
 
             // Create lights
-            Light sunLight = new Light(new Vector3(), new Vector3(0.7f, 0.7f, 0.7f));
-            sunLight.Type = LightType.Directional;
-            sunLight.Direction = (sunLight.Position - floor.Position).Normalized();
-            lights.Add(sunLight);
+            //Light sunLight = new Light(new Vector3(), new Vector3(0.7f, 0.7f, 0.7f));
+            //sunLight.Type = LightType.Directional;
+            //sunLight.Direction = (sunLight.Position - floor.Position).Normalized();
+            //lights.Add(sunLight);
+
+            spotLight = new Light(train.Model.Position + new Vector3(0, 1.0f, -3.0f), new Vector3(1.0f, 0.0f, 0.0f));
+            spotLight.Type = LightType.Spot;
+            spotLight.ConeAngle = 30.0f;
+            spotLight.Direction = (spotLight.Position - new Vector3(100, 1.0f, -3.0f)).Normalized();
+            spotLight.QuadraticAttenuation = 0.00001f;
+            lights.Add(spotLight);
+
+            for (int i = 0; i < tracks.Count; i += tracks.Count / (MAX_LIGHTS - 1))
+            {
+                Light pointLight = new Light(new Vector3(2, 20, 2) + tracks[i].Model.Position, new Vector3(1.0f, 1.0f, 1.0f));
+                pointLight.Type = LightType.Point;
+                pointLight.QuadraticAttenuation = 0.0008f;
+                lights.Add(pointLight);
+            }
 
 
 
-            Light pointLight = new Light(new Vector3(2, 7, 0), new Vector3(1.5f, 0.2f, 0.2f));
-            pointLight.QuadraticAttenuation = 0.05f;
-            lights.Add(pointLight);
+            // Setup cameras
+            activeCamera = stillCamera;
 
-            Light pointLight2 = new Light(new Vector3(2, 0, 3), new Vector3(0.2f, 1f, 0.25f));
-            pointLight2.QuadraticAttenuation = 0.05f;
-            lights.Add(pointLight2);
 
-            Light pointLight3 = new Light(new Vector3(6, 4, 0), new Vector3(0.2f, 0.25f, 1.5f));
-            pointLight3.QuadraticAttenuation = 0.05f;
-            lights.Add(pointLight3);
+            stillCamera.Position = new Vector3(300f, 120f, 300f);
+            stillCamera.AddRotation(0.5f, -30.5f);
 
-            // Move camera away from origin
-            cam.Position += new Vector3(0f, 1f, 3f);
+            followCamera.Position = new Vector3(170f, 120f, -20f);
+            followCamera.Target = train.Model.Position;
+
+            onboardCamera.Position = train.Model.Position +
+                new Vector3(
+                    Train.ONBOARD_TRAIN_OFFSET[0] * (float)Math.Sin(train.Model.Rotation[1]),
+                    Train.ONBOARD_TRAIN_OFFSET[1],
+                    Train.ONBOARD_TRAIN_OFFSET[2] * (float)Math.Cos(train.Model.Rotation[1]));
+            onboardCamera.Target = train.Model.Position;
+
         }
         private void loadMaterials(String filename)
         {
@@ -317,7 +374,6 @@ namespace Trainsporting
                     }
                 }
             }
-
             // Store current state for next comparison;
             lastKeyboardState = keyboardState;
 
@@ -414,14 +470,32 @@ namespace Trainsporting
             //objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
             //objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
 
-            train.UpdatePosition(1.25f);
-            //objects[2].Position += new Vector3(0, 0, 0.001f);
+            train.UpdatePosition();
+            followCamera.Target = train.Model.Position;
+            onboardCamera.Position = train.Model.Position +
+                new Vector3(
+                    Train.ONBOARD_TRAIN_OFFSET[0] * (float)Math.Sin(train.Model.Rotation[1]),
+                    Train.ONBOARD_TRAIN_OFFSET[1],
+                    Train.ONBOARD_TRAIN_OFFSET[2] * (float)Math.Cos(train.Model.Rotation[1]));
+            onboardCamera.Target = train.Model.Position;
 
+            spotLight.Position = train.Model.Position + new Vector3(
+                -5.0f * (float)Math.Sin(train.Model.Rotation[1]),
+                2.0f,
+                -5.0f * (float)Math.Cos(train.Model.Rotation[1]));
+            spotLight.Type = LightType.Spot;
+            spotLight.ConeAngle = 60.0f;
+            spotLight.Direction = (
+                new Vector3(
+                    30 * (float)Math.Sin(time),
+                    -1.0f,
+                    30 * (float)Math.Cos(time))).Normalized();
+            spotLight.QuadraticAttenuation = 0.01f;
             // Update model view matrices
             foreach (Volume v in objects)
             {
                 v.CalculateModelMatrix();
-                v.ViewProjectionMatrix = cam.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 400.0f);
+                v.ViewProjectionMatrix = activeCamera.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 4000.0f);
                 v.ModelViewProjectionMatrix = v.ModelMatrix * v.ViewProjectionMatrix;
             }
 
@@ -440,11 +514,11 @@ namespace Trainsporting
                 Vector2 delta = lastMousePos - new Vector2(OpenTK.Input.Mouse.GetState().X, OpenTK.Input.Mouse.GetState().Y);
                 lastMousePos += delta;
 
-                cam.AddRotation(delta.X, delta.Y);
+                activeCamera.AddRotation(delta.X, delta.Y);
                 ResetCursor();
             }
 
-            view = cam.GetViewMatrix();
+            view = activeCamera.GetViewMatrix();
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
@@ -622,38 +696,32 @@ namespace Trainsporting
 
             switch (e.KeyChar)
             {
-                case (char)13:
-                    cam.Move(1.0f, 0.1f, 1.0f);
-                    break;
-                case 'w':
-                    cam.Move(0f, 0.1f, 0f);
-                    break;
-                case 'a':
-                    cam.Move(-0.1f, 0f, 0f);
-                    break;
-                case 's':
-                    cam.Move(0f, -0.1f, 0f);
-                    break;
-                case 'd':
-                    cam.Move(0.1f, 0f, 0f);
-                    break;
-                case 'q':
-                    cam.Move(0f, 0f, 0.1f);
-                    break;
-                case 'e':
-                    cam.Move(0f, 0f, -0.1f);
-                    break;
                 case '1':
-                    lightingMode = 0;
+                    activeCamera = stillCamera;
                     break;
                 case '2':
-                    lightingMode = 1;
+                    activeCamera = followCamera;
                     break;
                 case '3':
+                    activeCamera = onboardCamera;
+                    break;
+                case 'o':
+                    lightingMode = 0;
+                    break;
+                case 'p':
+                    lightingMode = 1;
+                    break;
+                case 'k':
                     activeShader = "gourard";
                     break;
-                case '4':
+                case 'l':
                     activeShader = "lit_advanced";
+                    break;
+                case 'w':
+                    train.Accelerate();
+                    break;
+                case 's':
+                    train.Decelerate();
                     break;
             }
         }
