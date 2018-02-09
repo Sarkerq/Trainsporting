@@ -46,7 +46,6 @@ namespace Trainsporting
             {
                 SetNextTrack();
             }
-
         }
 
 

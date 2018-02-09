@@ -76,7 +76,7 @@
     <None Include="fs_gourard.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="fs_lit_advanced.glsl">
+    <None Include="fs_phong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="earth.mtl">
@@ -117,7 +117,7 @@
     <None Include="vs_gourard.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="vs_lit.glsl">
+    <None Include="vs_phong.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

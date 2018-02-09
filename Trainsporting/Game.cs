@@ -50,7 +50,7 @@ namespace Trainsporting
         Vector2 lastMousePos = new Vector2();
 
         Matrix4 view = Matrix4.Identity;
-        int lightingMode = 1;
+        int lightingMode = 0;
 
         KeyboardState keyboardState, lastKeyboardState;
 
@@ -64,7 +64,7 @@ namespace Trainsporting
 
         Light spotLight;
 
-        public Game() : base(1440, 900, new GraphicsMode(32, 24, 0, 4))
+        public Game() : base(800, 600, new GraphicsMode(32, 24, 0, 4))
         {
 
         }
@@ -87,14 +87,14 @@ namespace Trainsporting
 
             loadResources();
 
-            activeShader = "gourard";
+            activeShader = "phong";
 
             setupScene();
         }
         private void loadResources()
         {
             // Load shaders from file
-            shaders.Add("lit_advanced", new ShaderProgram("vs_lit.glsl", "fs_lit_advanced.glsl", true));
+            shaders.Add("phong", new ShaderProgram("vs_phong.glsl", "fs_phong.glsl", true));
             shaders.Add("gourard", new ShaderProgram("vs_gourard.glsl", "fs_gourard.glsl", true));
 
             // Load materials and textures
@@ -107,26 +107,6 @@ namespace Trainsporting
 
         private void setupScene()
         {
-
-            // Create our objects
-            //TexturedCube tc = new TexturedCube();
-            //tc.TextureID = textures[materials["opentk1"].DiffuseMap];
-            //tc.CalculateNormals();
-            //tc.Material = materials["opentk1"];
-            //objects.Add(tc);
-
-            //TexturedCube tc2 = new TexturedCube();
-            //tc2.Position += new Vector3(1f, 1f, 1f);
-            //tc2.TextureID = textures[materials["opentk2"].DiffuseMap];
-            //tc2.CalculateNormals();
-            //tc2.Material = materials["opentk2"];
-            //objects.Add(tc2);
-
-            //ObjVolume earth = ObjVolume.LoadFromFile("earth.obj");
-            //earth.TextureID = textures["earth.png"];
-            //earth.Position += new Vector3(1f, 1f, -2f);
-            //earth.Material = materials["earth"];
-            //objects.Add(earth);
 
             ObjVolume trainModel = ObjVolume.LoadFromFile("train.obj");
             trainModel.TextureID = textures["basic1.png"];
@@ -250,19 +230,8 @@ namespace Trainsporting
             floor.Material = materials["opentk1"];
             objects.Add(floor);
 
-            //TexturedCube backWall = new TexturedCube();
-            //backWall.TextureID = textures[materials["opentk1"].DiffuseMap];
-            //backWall.Scale = new Vector3(20, 20, 0.1f);
-            //backWall.Position += new Vector3(0, 8, -10);
-            //backWall.CalculateNormals();
-            //backWall.Material = materials["opentk1"];
-            //objects.Add(backWall);
 
             // Create lights
-            //Light sunLight = new Light(new Vector3(), new Vector3(0.7f, 0.7f, 0.7f));
-            //sunLight.Type = LightType.Directional;
-            //sunLight.Direction = (sunLight.Position - floor.Position).Normalized();
-            //lights.Add(sunLight);
 
             spotLight = new Light(train.Model.Position + new Vector3(0, 1.0f, -3.0f), new Vector3(1.0f, 0.0f, 0.0f));
             spotLight.Type = LightType.Spot;
@@ -354,7 +323,6 @@ namespace Trainsporting
             {
                 int branch0Index = tracks.IndexOf(branches[0]);
                 int branch1Index = tracks.IndexOf(branches[1]);
-
                 if (train.branchSetting == 1)
                 {
                     train.branchSetting = 0;
@@ -462,13 +430,6 @@ namespace Trainsporting
             // Update object positions
             time += (float)e.Time;
 
-            //objects[0].Position = new Vector3(0.3f, -0.5f + (float)Math.Sin(time), -3.0f);
-            //objects[0].Rotation = new Vector3(0.55f * time, 0.25f * time, 0);
-            //objects[0].Scale = new Vector3(0.5f, 0.5f, 0.5f);
-
-            //objects[1].Position = new Vector3(-1f, 0.5f + (float)Math.Cos(time), -2.0f);
-            //objects[1].Rotation = new Vector3(-0.25f * time, -0.35f * time, 0);
-            //objects[1].Scale = new Vector3(0.7f, 0.7f, 0.7f);
 
             train.UpdatePosition();
             followCamera.Target = train.Model.Position;
@@ -715,7 +676,7 @@ namespace Trainsporting
                     activeShader = "gourard";
                     break;
                 case 'l':
-                    activeShader = "lit_advanced";
+                    activeShader = "phong";
                     break;
                 case 'w':
                     train.Accelerate();
