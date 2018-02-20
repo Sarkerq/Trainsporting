@@ -74,9 +74,9 @@ namespace Trainsporting
 
             initProgram();
 
-            Title = "Hello OpenTK!";
+            Title = "Trainsporting";
             GL.ClearColor(Color.CornflowerBlue);
-            GL.PointSize(5f);
+            GL.PointSize(500f);
         }
         void initProgram()
         {
