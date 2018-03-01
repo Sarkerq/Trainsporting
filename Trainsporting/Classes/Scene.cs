@@ -1,4 +1,6 @@
 ﻿using OpenTK;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,22 +8,28 @@ using System.Text;
 using Trainsporting;
 
 using static Trainsporting.Game;
+
 namespace Trainsporting.Classes
 {
     public class Scene
     {
-        static public void setupScene()
+        static public void initProgram()
+        {
+            GL.GenBuffers(1, out ibo_elements);
+            Assets.loadResources();
+            activeShader = "phong";
+            setupScene();
+        }
+        static void setupScene()
         {
             setupObjects();
             setupLights();
             setupCameras();
-
         }
 
         static void setupCameras()
         {
             activeCamera = stillCamera;
-
 
             stillCamera.Position = new Vector3(300f, 120f, 300f);
             stillCamera.AddRotation(0.5f, -30.5f);

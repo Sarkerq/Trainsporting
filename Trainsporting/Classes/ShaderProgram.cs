@@ -9,7 +9,7 @@ using Trainsporting.Classes;
 
 namespace Trainsporting
 {
-    class ShaderProgram
+    public class ShaderProgram
     {
         public int ProgramID = -1;
         public int VShaderID = -1;
