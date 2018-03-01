@@ -49,9 +49,9 @@ namespace Trainsporting.Classes
         {
             spotLight = new Light(train.Model.Position + new Vector3(0, 1.0f, -3.0f), new Vector3(1.0f, 0.0f, 0.0f));
             spotLight.Type = LightType.Spot;
-            spotLight.ConeAngle = 30.0f;
+            spotLight.ConeAngle = 60.0f;
+            spotLight.QuadraticAttenuation = 0.01f;
             spotLight.Direction = (spotLight.Position - new Vector3(100, 1.0f, -3.0f)).Normalized();
-            spotLight.QuadraticAttenuation = 0.00001f;
             lights.Add(spotLight);
 
             for (int i = 0; i < tracks.Count; i += tracks.Count / (MAX_LIGHTS - 1))

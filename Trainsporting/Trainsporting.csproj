@@ -47,11 +47,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Assets.cs" />
     <Compile Include="Classes\Camera.cs" />
     <Compile Include="Classes\Cube.cs" />
     <Compile Include="Classes\Game.cs" />
     <Compile Include="Classes\ArrayExtensions.cs" />
     <Compile Include="Classes\Global.cs" />
+    <Compile Include="Classes\InputManip.cs" />
     <Compile Include="Classes\Light.cs" />
     <Compile Include="Classes\Material.cs" />
     <Compile Include="Classes\ObjVolume.cs" />

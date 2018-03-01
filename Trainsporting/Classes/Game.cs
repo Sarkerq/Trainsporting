@@ -26,7 +26,6 @@ namespace Trainsporting
         public static Dictionary<string, int> textures = new Dictionary<string, int>();
 
         Vector3[] vertdata;
-        Vector3[] coldata;
         Vector2[] texcoorddata;
         Vector3[] normdata;
 
@@ -53,7 +52,7 @@ namespace Trainsporting
         Matrix4 view = Matrix4.Identity;
         int lightingMode = 0;
 
-        KeyboardState keyboardState, lastKeyboardState;
+        public static KeyboardState keyboardState, lastKeyboardState;
 
         public static Train train;
 
@@ -83,54 +82,88 @@ namespace Trainsporting
             GL.PointSize(500f);
         }
 
-        public bool KeyPress(Key key)
-        {
-            return (keyboardState[key] && (keyboardState[key] != lastKeyboardState[key]));
-        }
+
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
+   
+            time += (float)e.Time;
 
-            // Get current state
-            keyboardState = OpenTK.Input.Keyboard.GetState();
+            InputManip.CheckKeyPresses();
+            
+            AssembleData();
 
-            // Check Key Presses
-            if (KeyPress(Key.LShift))
+            FillBuffersWithData();
+
+            UpdateObjectPositions();
+
+            UpdateModelViewMatrices();
+
+            GL.UseProgram(shaders[activeShader].ProgramID);
+
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+
+
+            ResetMousePosition();
+
+            view = activeCamera.GetViewMatrix();
+        }
+
+        private void ResetMousePosition()
+        {
+            if (Focused)
             {
-                int branch0Index = tracks.IndexOf(branches[0]);
-                int branch1Index = tracks.IndexOf(branches[1]);
-                if (train.branchSetting == 1)
-                {
-                    train.branchSetting = 0;
-                    for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
-                    {
-                        tracks[branch0Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic3.png"];
-                        tracks[branch1Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic2.png"];
-                    }
-                }
-                else
-                {
-                    train.branchSetting = 1;
-                    for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
-                    {
-                        tracks[branch0Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic2.png"];
-                        tracks[branch1Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic3.png"];
-                    }
-                }
+                Vector2 delta = lastMousePos - new Vector2(OpenTK.Input.Mouse.GetState().X, OpenTK.Input.Mouse.GetState().Y);
+                lastMousePos += delta;
+
+                activeCamera.AddRotation(delta.X, delta.Y);
+                ResetCursor();
             }
-            // Store current state for next comparison;
-            lastKeyboardState = keyboardState;
+        }
+
+        private void UpdateModelViewMatrices()
+        {
+            foreach (Volume v in objects)
+            {
+                v.CalculateModelMatrix();
+                v.ViewProjectionMatrix = activeCamera.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 4000.0f);
+                v.ModelViewProjectionMatrix = v.ModelMatrix * v.ViewProjectionMatrix;
+            }
+        }
+
+        private void UpdateObjectPositions()
+        {
 
 
+            train.UpdatePosition();
+            followCamera.Target = train.Model.Position;
+            onboardCamera.Position = train.Model.Position +
+                new Vector3(
+                    Train.ONBOARD_TRAIN_OFFSET[0] * (float)Math.Sin(train.Model.Rotation[1]),
+                    Train.ONBOARD_TRAIN_OFFSET[1],
+                    Train.ONBOARD_TRAIN_OFFSET[2] * (float)Math.Cos(train.Model.Rotation[1]));
+            onboardCamera.Target = train.Model.Position;
 
+            spotLight.Position = train.Model.Position + new Vector3(
+                -5.0f * (float)Math.Sin(train.Model.Rotation[1]),
+                2.0f,
+                -5.0f * (float)Math.Cos(train.Model.Rotation[1]));
+            spotLight.Direction = (
+                new Vector3(
+                    30 * (float)Math.Sin(time),
+                    -1.0f,
+                    30 * (float)Math.Cos(time))).Normalized();
+        }
+
+        private void AssembleData()
+        {
             int vertsCount = 0, indsCount = 0, texcoordsCount = 0, normalsCount = 0;
             Vector3[][] verts = new Vector3[objects.Count][];
             int[][] inds = new int[objects.Count][];
-            Vector3[][] colors = new Vector3[objects.Count][];
             Vector2[][] texcoords = new Vector2[objects.Count][];
             Vector3[][] normals = new Vector3[objects.Count][];
 
-            // Assemble vertex and indice data for all volumes
             int vertcount = 0;
             int index = 0;
             foreach (Volume v in objects)
@@ -140,7 +173,6 @@ namespace Trainsporting
                 inds[index] = v.GetIndices(vertcount);
                 indsCount += inds[index].Length;
 
-                //colors.AddRange(v.GetColorData().ToList());
                 texcoords[index] = v.GetTextureCoords();
                 texcoordsCount += texcoords[index].Length;
 
@@ -153,7 +185,6 @@ namespace Trainsporting
 
             vertdata = new Vector3[vertsCount];
             indicedata = new int[indsCount];
-            coldata = colors[0];
             texcoorddata = new Vector2[texcoordsCount];
             normdata = new Vector3[normalsCount];
 
@@ -173,90 +204,34 @@ namespace Trainsporting
                 Array.Copy(normals[i], 0, normdata, normalsCount, normals[i].Length);
                 normalsCount += normals[i].Length;
             }
+        }
 
-            GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vPosition"));
-
-            GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(vertdata.Length * Vector3.SizeInBytes), vertdata, BufferUsageHint.StaticDraw);
-            GL.VertexAttribPointer(shaders[activeShader].GetAttribute("vPosition"), 3, VertexAttribPointerType.Float, false, 0, 0);
-
-            // Buffer vertex color if shader supports it
-            if (shaders[activeShader].GetAttribute("vColor") != -1)
-            {
-                GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vColor"));
-                GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(coldata.Length * Vector3.SizeInBytes), coldata, BufferUsageHint.StaticDraw);
-                GL.VertexAttribPointer(shaders[activeShader].GetAttribute("vColor"), 3, VertexAttribPointerType.Float, true, 0, 0);
-            }
-
-
-            // Buffer texture coordinates if shader supports it
+        private void FillBuffersWithData()
+        {
+            FillBuffer("vPosition", vertdata, Vector3.SizeInBytes);
+            
             if (shaders[activeShader].GetAttribute("texcoord") != -1)
             {
-                GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("texcoord"));
-                GL.BufferData<Vector2>(BufferTarget.ArrayBuffer, (IntPtr)(texcoorddata.Length * Vector2.SizeInBytes), texcoorddata, BufferUsageHint.StaticDraw);
-                GL.VertexAttribPointer(shaders[activeShader].GetAttribute("texcoord"), 2, VertexAttribPointerType.Float, true, 0, 0);
+                FillBuffer("texcoord", texcoorddata, Vector2.SizeInBytes);
             }
 
             if (shaders[activeShader].GetAttribute("vNormal") != -1)
             {
-                GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer("vNormal"));
-                GL.BufferData<Vector3>(BufferTarget.ArrayBuffer, (IntPtr)(normdata.Length * Vector3.SizeInBytes), normdata, BufferUsageHint.StaticDraw);
-                GL.VertexAttribPointer(shaders[activeShader].GetAttribute("vNormal"), 3, VertexAttribPointerType.Float, true, 0, 0);
+                FillBuffer("vNormal", normdata, Vector3.SizeInBytes);
             }
-
-            // Update object positions
-            time += (float)e.Time;
-
-
-            train.UpdatePosition();
-            followCamera.Target = train.Model.Position;
-            onboardCamera.Position = train.Model.Position +
-                new Vector3(
-                    Train.ONBOARD_TRAIN_OFFSET[0] * (float)Math.Sin(train.Model.Rotation[1]),
-                    Train.ONBOARD_TRAIN_OFFSET[1],
-                    Train.ONBOARD_TRAIN_OFFSET[2] * (float)Math.Cos(train.Model.Rotation[1]));
-            onboardCamera.Target = train.Model.Position;
-
-            spotLight.Position = train.Model.Position + new Vector3(
-                -5.0f * (float)Math.Sin(train.Model.Rotation[1]),
-                2.0f,
-                -5.0f * (float)Math.Cos(train.Model.Rotation[1]));
-            spotLight.Type = LightType.Spot;
-            spotLight.ConeAngle = 60.0f;
-            spotLight.Direction = (
-                new Vector3(
-                    30 * (float)Math.Sin(time),
-                    -1.0f,
-                    30 * (float)Math.Cos(time))).Normalized();
-            spotLight.QuadraticAttenuation = 0.01f;
-            // Update model view matrices
-            foreach (Volume v in objects)
-            {
-                v.CalculateModelMatrix();
-                v.ViewProjectionMatrix = activeCamera.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 4000.0f);
-                v.ModelViewProjectionMatrix = v.ModelMatrix * v.ViewProjectionMatrix;
-            }
-
-            GL.UseProgram(shaders[activeShader].ProgramID);
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
             // Buffer index data
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, ibo_elements);
             GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(indicedata.Length * sizeof(int)), indicedata, BufferUsageHint.StaticDraw);
-
-
-            // Reset mouse position
-            if (Focused)
-            {
-                Vector2 delta = lastMousePos - new Vector2(OpenTK.Input.Mouse.GetState().X, OpenTK.Input.Mouse.GetState().Y);
-                lastMousePos += delta;
-
-                activeCamera.AddRotation(delta.X, delta.Y);
-                ResetCursor();
-            }
-
-            view = activeCamera.GetViewMatrix();
         }
+
+        private void FillBuffer<T>(string bufferName, T[] fillerData,int sizeInBytes) where T : struct
+        {
+            GL.BindBuffer(BufferTarget.ArrayBuffer, shaders[activeShader].GetBuffer(bufferName));
+            GL.BufferData<T>(BufferTarget.ArrayBuffer, (IntPtr)(fillerData.Length * sizeInBytes), fillerData, BufferUsageHint.StaticDraw);
+            GL.VertexAttribPointer(shaders[activeShader].GetAttribute(bufferName), sizeInBytes/sizeof(float), VertexAttribPointerType.Float, false, 0, 0);
+        }
+
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
@@ -265,8 +240,19 @@ namespace Trainsporting
             GL.Enable(EnableCap.DepthTest);
 
             GL.UseProgram(shaders[activeShader].ProgramID);
+
             shaders[activeShader].EnableVertexAttribArrays();
 
+            DrawAllObjects();
+
+            shaders[activeShader].DisableVertexAttribArrays();
+
+            GL.Flush();
+            SwapBuffers();
+        }
+
+        private void DrawAllObjects()
+        {
             int indiceat = 0;
 
             GL.Uniform1(shaders[activeShader].GetUniform("mode"), lightingMode);
@@ -330,27 +316,6 @@ namespace Trainsporting
                     }
                 }
 
-                if (shaders[activeShader].GetUniform("light_position") != -1)
-                {
-                    GL.Uniform3(shaders[activeShader].GetUniform("light_position"), ref lights[0].Position);
-                }
-
-                if (shaders[activeShader].GetUniform("light_color") != -1)
-                {
-                    GL.Uniform3(shaders[activeShader].GetUniform("light_color"), ref lights[0].Color);
-                }
-
-                if (shaders[activeShader].GetUniform("light_diffuseIntensity") != -1)
-                {
-                    GL.Uniform1(shaders[activeShader].GetUniform("light_diffuseIntensity"), lights[0].DiffuseIntensity);
-                }
-
-                if (shaders[activeShader].GetUniform("light_ambientIntensity") != -1)
-                {
-                    GL.Uniform1(shaders[activeShader].GetUniform("light_ambientIntensity"), lights[0].AmbientIntensity);
-                }
-
-
                 for (int i = 0; i < Math.Min(lights.Count, MAX_LIGHTS); i++)
                 {
                     if (shaders[activeShader].GetUniform("lights[" + i + "].position") != -1)
@@ -371,6 +336,11 @@ namespace Trainsporting
                     if (shaders[activeShader].GetUniform("lights[" + i + "].ambientIntensity") != -1)
                     {
                         GL.Uniform1(shaders[activeShader].GetUniform("lights[" + i + "].ambientIntensity"), lights[i].AmbientIntensity);
+                    }
+
+                    if (shaders[activeShader].GetUniform("lights[" + i + "].specularIntensity") != -1)
+                    {
+                        GL.Uniform1(shaders[activeShader].GetUniform("lights[" + i + "].specularIntensity"), lights[i].SpecularIntensity);
                     }
 
                     if (shaders[activeShader].GetUniform("lights[" + i + "].direction") != -1)
@@ -402,12 +372,8 @@ namespace Trainsporting
                 GL.DrawElements(BeginMode.Triangles, v.IndiceCount, DrawElementsType.UnsignedInt, indiceat * sizeof(uint));
                 indiceat += v.IndiceCount;
             }
-
-            shaders[activeShader].DisableVertexAttribArrays();
-
-            GL.Flush();
-            SwapBuffers();
         }
+
         protected override void OnResize(EventArgs e)
         {
 
