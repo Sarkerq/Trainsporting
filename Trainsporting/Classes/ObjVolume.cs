@@ -6,10 +6,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trainsporting.Classes;
 
 namespace Trainsporting
 {
-    class ObjVolume : Volume
+    public class ObjVolume : Volume
     {
 
         static CultureInfo culture = CultureInfo.InvariantCulture;
@@ -27,6 +28,16 @@ namespace Trainsporting
         Vector2[] coords;
         int[] indices;
 
+        public static  ObjVolume ObjVolumeFactory(string objectFilename, string textureFilename, string materialName, Vector3 position, Vector3 rotation, Vector3 scale)
+        {
+            ObjVolume obj = ObjVolume.LoadFromFile(objectFilename);
+            obj.TextureID = Game.textures[Global.TEXTURES_RELATIVE_PATH + textureFilename];
+            obj.Position = position;
+            obj.Rotation = rotation;
+            obj.Scale = scale;
+            obj.Material = Game.materials["AVE-BLANCO"];
+            return obj;
+        }
         /// <summary>
         /// Get vertice data for this object
         /// </summary>
@@ -86,7 +97,7 @@ namespace Trainsporting
             ObjVolume obj = new ObjVolume();
             try
             {
-                using (StreamReader reader = new StreamReader(new FileStream(filename, FileMode.Open, FileAccess.Read)))
+                using (StreamReader reader = new StreamReader(new FileStream(Global.OBJECTS_RELATIVE_PATH + filename, FileMode.Open, FileAccess.Read)))
                 {
                     obj = LoadFromString(reader.ReadToEnd());
                 }

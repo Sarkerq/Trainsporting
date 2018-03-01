@@ -10,6 +10,7 @@ using System.IO;
 using OpenTK.Graphics;
 using System.Drawing.Imaging;
 using OpenTK.Input;
+using Trainsporting.Classes;
 
 namespace Trainsporting
 {
@@ -108,19 +109,16 @@ namespace Trainsporting
         private void setupScene()
         {
 
-            ObjVolume trainModel = ObjVolume.LoadFromFile("train.obj");
-            trainModel.TextureID = textures["basic1.png"];
-            trainModel.Position += new Vector3(0, 0.7f, -2f);
-            trainModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-            trainModel.Scale = new Vector3(10.0f, 10.0f, 10.0f);
-            trainModel.Material = materials["AVE-BLANCO"];
+            ObjVolume trainModel = ObjVolume.ObjVolumeFactory("train.obj", "basic1.png", "AVE-BLANCO",
+                new Vector3(0, 0.7f, -2f),
+                new Vector3(0, (float)Math.PI / 80, 0),
+                new Vector3(10.0f, 10.0f, 10.0f));
             objects.Add(trainModel);
 
-            ObjVolume trackModel = ObjVolume.LoadFromFile("track.obj");
-            trackModel.TextureID = textures["basic2.png"];
-            trackModel.Position = trainModel.Position - Track.TRAIN_TRACK_OFFSET;
-            trackModel.Scale = new Vector3(0.75f, 0.75f, 2.4f);
-            trackModel.Material = materials["AVE-BLANCO"];
+            ObjVolume trackModel = ObjVolume.ObjVolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
+                trainModel.Position - Track.TRAIN_TRACK_OFFSET,
+                new Vector3(0, 0, 0),
+                new Vector3(0.75f, 0.75f, 2.4f));
             objects.Add(trackModel);
             tracks.Add(new Track(trackModel, 0));
 
@@ -173,53 +171,45 @@ namespace Trainsporting
             train = new Train(trainModel, tracks);
             for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
             {
-                tracks[branch1Index + i].Model.TextureID = textures["basic3.png"];
+                tracks[branch1Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic3.png"];
             }
             for (int i = 0; i < 100; i++)
             {
-                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
-                treeModel.TextureID = textures["tree.png"];
-                treeModel.Position += new Vector3(180.0f + (float)(160 - i * 1.5) * (float)Math.Sin(i), 1.4f, -2f + (float)(160 - i * 1.5) * (float)Math.Cos(i));
-                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-                treeModel.Scale = new Vector3(2.0f, 2.5f, 2.0f);
-                treeModel.Material = materials["AVE-BLANCO"];
+                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                    new Vector3(180.0f + (float)(160 - i * 1.5) * (float)Math.Sin(i), 1.4f, -2f + (float)(160 - i * 1.5) * (float)Math.Cos(i)),
+                    new Vector3(0, (float)Math.PI / 80, 0),
+                    new Vector3(2.0f, 2.5f, 2.0f));
                 objects.Add(treeModel);
             }
             for (int i = 0; i < 80; i++)
             {
-                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
-                treeModel.TextureID = textures["tree.png"];
-                treeModel.Position += new Vector3(210.0f + (float)(140 - i * 1.5) * (float)Math.Sin(i), 1.4f, -370f + (float)(140 - i * 1.5) * (float)Math.Cos(i));
-                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-                treeModel.Scale = new Vector3(3.0f, 3.5f, 3.0f);
-                treeModel.Material = materials["AVE-BLANCO"];
+                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                    new Vector3(210.0f + (float)(140 - i * 1.5) * (float)Math.Sin(i), 1.4f, -370f + (float)(140 - i * 1.5) * (float)Math.Cos(i)),
+                    new Vector3(0, (float)Math.PI / 80, 0),
+                    new Vector3(3.0f, 3.5f, 3.0f));
                 objects.Add(treeModel);
             }
 
             for (int i = 0; i < 70; i++)
             {
-                ObjVolume treeModel = ObjVolume.LoadFromFile("tree.obj");
-                treeModel.TextureID = textures["tree.png"];
-                treeModel.Position += tracks[i * 3].Model.Position +
+                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                    tracks[i * 3].Model.Position +
                     new Vector3(
                         (float)(5) * (float)Math.Sqrt(Math.Abs(Math.Sin(tracks[i * 3].Model.Rotation[1]))) +
                         (float)(35) * (float)Math.Abs(Math.Cos(i) + 0.45f) + 1.3f,
                     1.4f,
                     (float)(5) * (float)Math.Sqrt(Math.Abs(Math.Cos(tracks[i * 3].Model.Rotation[1]))) +
-                    (float)(25) * (float)Math.Abs(Math.Cos(i) + 1.5f) + 6.9f);
-                treeModel.Rotation = new Vector3(0, (float)Math.PI / 80, 0);
-                treeModel.Scale = new Vector3(4.0f, 5.0f, 4.0f);
-                treeModel.Material = materials["AVE-BLANCO"];
+                    (float)(25) * (float)Math.Abs(Math.Cos(i) + 1.5f) + 6.9f),
+                    new Vector3(0, (float)Math.PI / 80, 0),
+                    new Vector3(4.0f, 5.0f, 4.0f));
                 objects.Add(treeModel);
             }
 
 
-            ObjVolume rockModel = ObjVolume.LoadFromFile("rock.obj");
-            rockModel.TextureID = textures["rock.png"];
-            rockModel.Position += new Vector3(-0.0f, 40.7f, -300f);
-            rockModel.Rotation = new Vector3(0, (float)Math.PI / 2, 0);
-            rockModel.Scale = new Vector3(5.0f, 5.0f, 5.0f);
-            rockModel.Material = materials["AVE-BLANCO"];
+            ObjVolume rockModel = ObjVolume.ObjVolumeFactory("rock.obj", "rock.png", "AVE-BLANCO",
+                    new Vector3(-0.0f, 40.7f, -300f),
+                    new Vector3(0, (float)Math.PI / 2, 0),
+                    new Vector3(5.0f, 5.0f, 5.0f));
             objects.Add(rockModel);
 
             TexturedCube floor = new TexturedCube();
@@ -270,7 +260,7 @@ namespace Trainsporting
         }
         private void loadMaterials(String filename)
         {
-            foreach (var mat in Material.LoadFromFile(filename))
+            foreach (var mat in Material.LoadFromFile(Global.MATERIALS_RELATIVE_PATH + filename))
             {
                 if (!materials.ContainsKey(mat.Key))
                 {
@@ -328,8 +318,8 @@ namespace Trainsporting
                     train.branchSetting = 0;
                     for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
                     {
-                        tracks[branch0Index + i].Model.TextureID = textures["basic3.png"];
-                        tracks[branch1Index + i].Model.TextureID = textures["basic2.png"];
+                        tracks[branch0Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic3.png"];
+                        tracks[branch1Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic2.png"];
                     }
                 }
                 else
@@ -337,8 +327,8 @@ namespace Trainsporting
                     train.branchSetting = 1;
                     for (int i = TRACK_COLORING_OFFSET; i < TRACK_COLORING_OFFSET + NUMBER_OF_TRACKS_COLORED; i++)
                     {
-                        tracks[branch0Index + i].Model.TextureID = textures["basic2.png"];
-                        tracks[branch1Index + i].Model.TextureID = textures["basic3.png"];
+                        tracks[branch0Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic2.png"];
+                        tracks[branch1Index + i].Model.TextureID = textures[Global.TEXTURES_RELATIVE_PATH + "basic3.png"];
                     }
                 }
             }

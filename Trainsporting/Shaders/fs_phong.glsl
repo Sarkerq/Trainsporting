@@ -79,7 +79,9 @@ main()
   vec4 light_diffuse = lights[i].diffuseIntensity * vec4(lights[i].color, 0.0);
 
   // Ambient lighting
+ //   if(lights[i].type != 1 || inCone){
   lightcolor = lightcolor + texcolor * light_ambient * vec4(material_ambient, 0.0);
+//}
 
   // Diffuse lighting
   float lambertmaterial_diffuse = max(dot(normalized_normal, lightvec), 0.0);

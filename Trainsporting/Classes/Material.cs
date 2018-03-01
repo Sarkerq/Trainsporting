@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trainsporting.Classes;
 
 namespace Trainsporting
 {
@@ -234,7 +235,7 @@ namespace Trainsporting
                     // Check that file name is present
                     if (line.Length > "map_Ka".Length + 6)
                     {
-                        output.AmbientMap = line.Substring("map_Ka".Length + 1);
+                        output.AmbientMap = Global.TEXTURES_RELATIVE_PATH + line.Substring("map_Ka".Length + 1);
                     }
                 }
 
@@ -244,7 +245,7 @@ namespace Trainsporting
                     // Check that file name is present
                     if (line.Length > "map_Kd".Length + 6)
                     {
-                        output.DiffuseMap = line.Substring("map_Kd".Length + 1);
+                        output.DiffuseMap = Global.TEXTURES_RELATIVE_PATH + line.Substring("map_Kd".Length + 1);
                     }
                 }
 
@@ -254,7 +255,7 @@ namespace Trainsporting
                     // Check that file name is present
                     if (line.Length > "map_Ks".Length + 6)
                     {
-                        output.SpecularMap = line.Substring("map_Ks".Length + 1);
+                        output.SpecularMap = Global.TEXTURES_RELATIVE_PATH + line.Substring("map_Ks".Length + 1);
                     }
                 }
 
@@ -264,7 +265,7 @@ namespace Trainsporting
                     // Check that file name is present
                     if (line.Length > "map_normal".Length + 6)
                     {
-                        output.NormalMap = line.Substring("map_normal".Length + 1);
+                        output.NormalMap = Global.TEXTURES_RELATIVE_PATH + line.Substring("map_normal".Length + 1);
                     }
                 }
 
@@ -274,7 +275,7 @@ namespace Trainsporting
                     // Check that file name is present
                     if (line.Length > "map_opacity".Length + 6)
                     {
-                        output.OpacityMap = line.Substring("map_opacity".Length + 1);
+                        output.OpacityMap = Global.TEXTURES_RELATIVE_PATH + line.Substring("map_opacity".Length + 1);
                     }
                 }
 

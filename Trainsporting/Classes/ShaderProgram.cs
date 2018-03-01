@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Trainsporting.Classes;
 
 namespace Trainsporting
 {
@@ -30,8 +31,8 @@ namespace Trainsporting
 
             if (fromFile)
             {
-                LoadShaderFromFile(vshader, ShaderType.VertexShader);
-                LoadShaderFromFile(fshader, ShaderType.FragmentShader);
+                LoadShaderFromFile(Global.SHADERS_RELATIVE_PATH + vshader, ShaderType.VertexShader);
+                LoadShaderFromFile(Global.SHADERS_RELATIVE_PATH + fshader, ShaderType.FragmentShader);
             }
             else
             {

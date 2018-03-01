@@ -30,12 +30,11 @@ namespace Trainsporting
                 Path = lastTrack.Path;
             else
                 Path = path;
-            Model = ObjVolume.LoadFromFile("track.obj");
-            Model.TextureID = Game.textures["basic2.png"];
-            Model.Rotation = lastTrack.Model.Rotation + new Vector3(0, angleRadians, 0);
-            Model.Position = lastTrack.Model.Position + new Vector3((float)Math.Sin(Model.Rotation[1]) * TRACK_LENGTH, 0, (float)Math.Cos(Model.Rotation[1]) * TRACK_LENGTH);
-            Model.Scale = new Vector3(0.75f, 0.75f, 2.4f);
-            Model.Material = Game.materials["AVE-BLANCO"];
+            Vector3 newRotation = lastTrack.Model.Rotation + new Vector3(0, angleRadians, 0);
+            Model = ObjVolume.ObjVolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
+                lastTrack.Model.Position + new Vector3((float)Math.Sin(newRotation[1]) * TRACK_LENGTH, 0, (float)Math.Cos(newRotation[1]) * TRACK_LENGTH),
+                newRotation,
+                new Vector3(0.75f, 0.75f, 2.4f));
         }
         public List<Track> MakeBranchingPoint()
         {
