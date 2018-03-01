@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Trainsporting
 {
-    class Track
+    public class Track
     {
         public ObjVolume Model;
         public int Path;

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Trainsporting
 {
 
-    class Light
+    public class Light
     {
         public Light(Vector3 position, Vector3 color, float diffuseintensity = 1.0f, float ambientintensity = 1.0f)
         {
@@ -36,5 +36,5 @@ namespace Trainsporting
         public float QuadraticAttenuation;
     }
 
-    enum LightType { Point, Spot, Directional }
+    public enum LightType { Point, Spot, Directional }
 }

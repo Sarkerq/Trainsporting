@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Trainsporting
 {
-    class Train
+    public class Train
     {
         public ObjVolume Model;
         public List<Track> Tracks;
