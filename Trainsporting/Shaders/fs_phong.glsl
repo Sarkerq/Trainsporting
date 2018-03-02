@@ -26,8 +26,6 @@ uniform int mode;
 
 // Texture information
 uniform sampler2D maintexture;
-uniform bool hasSpecularMap;
-uniform sampler2D map_specular;
 
 uniform mat4 view;
 

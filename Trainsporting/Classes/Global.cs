@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -11,6 +12,9 @@ namespace Trainsporting.Classes
         public static string OBJECTS_RELATIVE_PATH = "Assets/3D Objects/";
         public static string TEXTURES_RELATIVE_PATH = "Assets/Textures/";
         public static string SHADERS_RELATIVE_PATH = "Shaders/";
+
+        public static CultureInfo culture = CultureInfo.InvariantCulture;
+        public static NumberStyles style = NumberStyles.Any;
 
     }
 }

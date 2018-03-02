@@ -299,23 +299,6 @@ namespace Trainsporting
                     GL.Uniform1(shaders[activeShader].GetUniform("material_specExponent"), v.Material.SpecularExponent);
                 }
 
-                if (shaders[activeShader].GetUniform("map_specular") != -1)
-                {
-                    // Object has a specular map
-                    if (v.Material.SpecularMap != "")
-                    {
-                        GL.ActiveTexture(TextureUnit.Texture1);
-                        GL.BindTexture(TextureTarget.Texture2D, textures[v.Material.SpecularMap]);
-                        GL.Uniform1(shaders[activeShader].GetUniform("map_specular"), 1);
-                        GL.Uniform1(shaders[activeShader].GetUniform("hasSpecularMap"), 1);
-                        GL.ActiveTexture(TextureUnit.Texture0);
-                    }
-                    else // Object has no specular map
-                    {
-                        GL.Uniform1(shaders[activeShader].GetUniform("hasSpecularMap"), 0);
-                    }
-                }
-
                 for (int i = 0; i < Math.Min(lights.Count, MAX_LIGHTS); i++)
                 {
                     if (shaders[activeShader].GetUniform("lights[" + i + "].position") != -1)

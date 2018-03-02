@@ -8,7 +8,7 @@ namespace Trainsporting
 {
     public class Track
     {
-        public ObjVolume Model;
+        public Volume Model;
         public int Path;
         public bool isBranchingPoint;
         public List<int> branchingPointIndexes;
@@ -18,7 +18,7 @@ namespace Trainsporting
         public static Vector3 TRAIN_TRACK_OFFSET = new Vector3(-1.1f, 2.3f, 1.4f);
         public static float BRANCHING_POINT_ANGLE = (float)Math.PI / 80;
 
-        public Track(ObjVolume model, int path)
+        public Track(Volume model, int path)
         {
             Model = model;
             Path = path;
@@ -31,7 +31,7 @@ namespace Trainsporting
             else
                 Path = path;
             Vector3 newRotation = lastTrack.Model.Rotation + new Vector3(0, angleRadians, 0);
-            Model = ObjVolume.ObjVolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
+            Model = Volume.VolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
                 lastTrack.Model.Position + new Vector3((float)Math.Sin(newRotation[1]) * TRACK_LENGTH, 0, (float)Math.Cos(newRotation[1]) * TRACK_LENGTH),
                 newRotation,
                 new Vector3(0.75f, 0.75f, 2.4f));

@@ -73,18 +73,16 @@ namespace Trainsporting.Classes
 
         static void setupFloor()
         {
-            TexturedCube floor = new TexturedCube();
-            floor.TextureID = textures[materials["opentk1"].DiffuseMap];
-            floor.Scale = new Vector3(2000, 0.1f, 2000);
-            floor.Position += new Vector3(0, -2, 0);
-            floor.CalculateNormals();
-            floor.Material = materials["opentk1"];
+            Volume floor = Volume.VolumeFactory("cube.obj", "grass.png", "opentk1",
+                    new Vector3(0, -2, 0),
+                    new Vector3(0, 0, 0),
+                    new Vector3(2000, 0.1f, 2000));
             objects.Add(floor);
         }
 
         static void setupRock()
         {
-            ObjVolume rockModel = ObjVolume.ObjVolumeFactory("rock.obj", "rock.png", "AVE-BLANCO",
+            Volume rockModel = Volume.VolumeFactory("rock.obj", "rock.png", "AVE-BLANCO",
                     new Vector3(-0.0f, 40.7f, -300f),
                     new Vector3(0, (float)Math.PI / 2, 0),
                     new Vector3(5.0f, 5.0f, 5.0f));
@@ -95,7 +93,7 @@ namespace Trainsporting.Classes
         {
             for (int i = 0; i < 100; i++)
             {
-                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                Volume treeModel = Volume.VolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
                     new Vector3(180.0f + (float)(160 - i * 1.5) * (float)Math.Sin(i), 1.4f, -2f + (float)(160 - i * 1.5) * (float)Math.Cos(i)),
                     new Vector3(0, (float)Math.PI / 80, 0),
                     new Vector3(2.0f, 2.5f, 2.0f));
@@ -103,7 +101,7 @@ namespace Trainsporting.Classes
             }
             for (int i = 0; i < 80; i++)
             {
-                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                Volume treeModel = Volume.VolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
                     new Vector3(210.0f + (float)(140 - i * 1.5) * (float)Math.Sin(i), 1.4f, -370f + (float)(140 - i * 1.5) * (float)Math.Cos(i)),
                     new Vector3(0, (float)Math.PI / 80, 0),
                     new Vector3(3.0f, 3.5f, 3.0f));
@@ -112,7 +110,7 @@ namespace Trainsporting.Classes
 
             for (int i = 0; i < 70; i++)
             {
-                ObjVolume treeModel = ObjVolume.ObjVolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
+                Volume treeModel = Volume.VolumeFactory("tree.obj", "tree.png", "AVE-BLANCO",
                     tracks[i * 3].Model.Position +
                     new Vector3(
                         (float)(5) * (float)Math.Sqrt(Math.Abs(Math.Sin(tracks[i * 3].Model.Rotation[1]))) +
@@ -128,12 +126,12 @@ namespace Trainsporting.Classes
 
         static void setupTrainAndTracks()
         {
-            ObjVolume trainModel = ObjVolume.ObjVolumeFactory("train.obj", "basic1.png", "AVE-BLANCO",
+            Volume trainModel = Volume.VolumeFactory("train.obj", "basic1.png", "AVE-BLANCO",
                 new Vector3(0, 0.7f, -2f),
                 new Vector3(0, (float)Math.PI / 80, 0),
                 new Vector3(10.0f, 10.0f, 10.0f));
             objects.Add(trainModel);
-            ObjVolume trackModel = ObjVolume.ObjVolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
+            Volume trackModel = Volume.VolumeFactory("track.obj", "basic2.png", "AVE-BLANCO",
                 trainModel.Position - Track.TRAIN_TRACK_OFFSET,
                 new Vector3(0, 0, 0),
                 new Vector3(0.75f, 0.75f, 2.4f));

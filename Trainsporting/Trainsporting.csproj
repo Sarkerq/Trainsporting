@@ -49,26 +49,29 @@
   <ItemGroup>
     <Compile Include="Classes\Assets.cs" />
     <Compile Include="Classes\Camera.cs" />
-    <Compile Include="Classes\Cube.cs" />
     <Compile Include="Classes\Game.cs" />
     <Compile Include="Classes\ArrayExtensions.cs" />
     <Compile Include="Classes\Global.cs" />
     <Compile Include="Classes\InputManip.cs" />
     <Compile Include="Classes\Light.cs" />
     <Compile Include="Classes\Material.cs" />
-    <Compile Include="Classes\ObjVolume.cs" />
+    <Compile Include="Classes\Volume.cs" />
     <Compile Include="Classes\Program.cs" />
     <Compile Include="Classes\Scene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\ShaderProgram.cs" />
-    <Compile Include="Classes\TexturedCube.cs" />
     <Compile Include="Classes\Track.cs" />
     <Compile Include="Classes\Train.cs" />
     <Compile Include="Classes\ViewMatrix.cs" />
-    <Compile Include="Classes\Volume.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="Assets\3D Objects\cube.obj">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="Assets\Materials\cube.mtl">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="Shaders\fs_gourard.glsl">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

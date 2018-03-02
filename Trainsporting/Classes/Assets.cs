@@ -27,6 +27,8 @@ namespace Trainsporting.Classes
             loadMaterials("track.mtl");
             loadMaterials("tree.mtl");
             loadMaterials("rock.mtl");
+            loadMaterials("cube.mtl");
+
         }
 
         public static void loadMaterials(String filename)

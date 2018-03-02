@@ -6,14 +6,14 @@ namespace Trainsporting
 {
     public class Train
     {
-        public ObjVolume Model;
+        public Volume Model;
         public List<Track> Tracks;
         public int currentTrackIndex;
         public Vector3 TargetOffset = new Vector3();
         public int branchSetting = 1;
         public float Velocity = 0;
         public static Vector3 ONBOARD_TRAIN_OFFSET = new Vector3(-20f, 10f, -20f);
-        public Train(ObjVolume model, List<Track> tracks)
+        public Train(Volume model, List<Track> tracks)
         {
             Model = model;
             Tracks = tracks;
