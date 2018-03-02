@@ -92,12 +92,12 @@ main()
 	  if(mode == 0) // PHONG
 	  {
 		vec3 reflectionvec = (reflect(-lightvec, normalized_normal));
-		material_specularreflection = max(dot(normalized_normal, lightvec), 0.0) * pow(max(dot(reflectionvec, viewvec), 0.0), material_specExponent);
+		material_specularreflection =  pow(max(dot(reflectionvec, viewvec), 0.0), material_specExponent);
 	  }
 	  else // BLINN
 	  {
 		vec3 halfvec = normalize(lightvec + viewvec);
-		material_specularreflection = max(dot(normalized_normal, lightvec), 0.0) * pow(max(dot(halfvec, normalized_normal), 0.0), material_specExponent * 4.0);
+		material_specularreflection = pow(max(dot(halfvec, normalized_normal), 0.0), material_specExponent * 4.0);
 	  }
 
 	  lightcolor = lightcolor + vec4(material_specular,0.0) *  light_specular  * material_specularreflection;

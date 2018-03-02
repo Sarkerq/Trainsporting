@@ -78,48 +78,52 @@ main()
    inCone = true;
   }
 
-  // Directional lighting
-  if(lights[i].type == 2){
-   lightvec = lights[i].direction;
-  }
-
-  // Colors
-  vec4 light_ambient = lights[i].ambientIntensity * vec4(lights[i].color, 0.0);
-  vec4 light_diffuse = lights[i].diffuseIntensity * vec4(lights[i].color, 0.0);
-
-  // Ambient lighting
-  ambient_lighting[i] = light_ambient * vec4(material_ambient, 0.0);
-
-  // Diffuse lighting
-  float lambertmaterial_diffuse = max(dot(normalized_normal, lightvec), 0.0);
-
-  // Spotlight, limit light to specific angle
-  if(lights[i].type != 1 || inCone){
-  diffuse_lighting[i] = (light_diffuse * vec4(material_diffuse, 0.0)) * lambertmaterial_diffuse;
-  }
-
-  // Specular lighting
-  vec3	viewvec = normalize(vec3(inverse(view) * vec4(0,0,0,1)) - v_pos); 
-  float material_specularreflection;
-  if(mode == 0) // PHONG
+  if(lights[i].type != 1 || inCone)
   {
-	vec3 reflectionvec = (reflect(-lightvec, normalized_normal));
-	material_specularreflection = max(dot(normalized_normal, lightvec), 0.0) * pow(max(dot(reflectionvec, viewvec), 0.0), material_specExponent);
-  }
-  else // BLINN
-  {
-	vec3 halfvec = normalize(lightvec + viewvec);
-	material_specularreflection = max(dot(normalized_normal, lightvec), 0.0) * pow(max(dot(halfvec, normalized_normal), 0.0), material_specExponent * 4.0);
-  }
 
-  // Spotlight, specular reflections are also limited by angle
-  if(lights[i].type != 1 || inCone){
-   specular_lighting[i] =  vec4(material_specular * lights[i].color, 0.0) * material_specularreflection;
-  }
+	// Colors
+	vec4 light_ambient = lights[i].ambientIntensity * vec4(lights[i].color, 0.0);
+	vec4 light_diffuse = lights[i].diffuseIntensity * vec4(lights[i].color, 0.0);
+
+	// Ambient lighting
+	ambient_lighting[i] = light_ambient * vec4(material_ambient, 0.0);
+
+	// Diffuse lighting
+	float lambertmaterial_diffuse = max(dot(normalized_normal, lightvec), 0.0);
+
+
+	diffuse_lighting[i] = (light_diffuse * vec4(material_diffuse, 0.0)) * lambertmaterial_diffuse;
+
+	// Specular lighting
+	vec3	viewvec = normalize(vec3(inverse(view) * vec4(0,0,0,1)) - v_pos); 
+	float material_specularreflection;
+	if(mode == 0) // PHONG
+	{
+		vec3 reflectionvec = (reflect(-lightvec, normalized_normal));
+		material_specularreflection = pow(max(dot(reflectionvec, viewvec), 0.0), material_specExponent);
+	}
+	else // BLINN
+	{
+		vec3 halfvec = normalize(lightvec + viewvec);
+		material_specularreflection =  pow(max(dot(halfvec, normalized_normal), 0.0), material_specExponent * 4.0);
+	}
+
+	// Spotlight, specular reflections are also limited by angle
+	specular_lighting[i] =  vec4(material_specular * lights[i].color, 0.0) * material_specularreflection;
+  
 
   // Attenuation
   float distancefactor = distance(lights[i].position, v_pos);
   attenuation[i] = 1.0 / (1.0 + (distancefactor * lights[i].linearAttenuation) + (distancefactor * distancefactor * lights[i].quadraticAttenuation));
  }
+ else
+ {
+ 	ambient_lighting[i] =  vec4(0.0,0.0,0.0,0.0);
+	diffuse_lighting[i] =  vec4(0.0,0.0,0.0,0.0);
 
+ 	specular_lighting[i] =  vec4(0.0,0.0,0.0,0.0);
+	attenuation[i] = 0.0;
+
+ }
+ }
 }

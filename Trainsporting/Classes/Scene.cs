@@ -76,7 +76,7 @@ namespace Trainsporting.Classes
             Volume floor = Volume.VolumeFactory("cube.obj", "grass.png", "opentk1",
                     new Vector3(0, -2, 0),
                     new Vector3(0, 0, 0),
-                    new Vector3(2000, 0.1f, 2000));
+                    new Vector3(1000, 0.1f, 1000));
             objects.Add(floor);
         }
 
