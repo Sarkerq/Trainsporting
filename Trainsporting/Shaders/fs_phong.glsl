@@ -27,7 +27,7 @@ uniform int mode;
 // Texture information
 uniform sampler2D maintexture;
 
-uniform mat4 view;
+uniform mat4 viewMatrix;
 
 // Material information
 uniform vec3 material_ambient;
@@ -87,7 +87,7 @@ main()
   
 
 	  // Specular lighting
-	  vec3	viewvec = normalize(vec3(inverse(view) * vec4(0,0,0,1)) - v_pos); 
+	  vec3	viewvec = normalize(vec3(inverse(viewMatrix) * vec4(0,0,0,1)) - v_pos); 
 	  float material_specularreflection;
 	  if(mode == 0) // PHONG
 	  {

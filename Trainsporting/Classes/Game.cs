@@ -49,7 +49,6 @@ namespace Trainsporting
         float time = 0.0f;
         public static Vector2 lastMousePos = new Vector2();
 
-        Matrix4 view = Matrix4.Identity;
         int lightingMode = 0;
 
         public static KeyboardState keyboardState, lastKeyboardState;
@@ -106,8 +105,6 @@ namespace Trainsporting
 
 
             ResetMousePosition();
-
-            view = activeCamera.GetViewMatrix();
         }
 
         private void ResetMousePosition()
@@ -127,8 +124,8 @@ namespace Trainsporting
             foreach (Volume v in objects)
             {
                 v.CalculateModelMatrix();
-                v.ViewProjectionMatrix = activeCamera.GetViewMatrix() * Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 4000.0f);
-                v.ModelViewProjectionMatrix = v.ModelMatrix * v.ViewProjectionMatrix;
+                v.ViewMatrix = activeCamera.GetViewMatrix();
+                v.ProjectionMatrix = Matrix4.CreatePerspectiveFieldOfView(1.3f, ClientSize.Width / (float)ClientSize.Height, 1.0f, 4000.0f);
             }
         }
 
@@ -262,21 +259,21 @@ namespace Trainsporting
             {
                 GL.BindTexture(TextureTarget.Texture2D, v.TextureID);
 
-                GL.UniformMatrix4(shaders[activeShader].GetUniform("modelview"), false, ref v.ModelViewProjectionMatrix);
+                GL.UniformMatrix4(shaders[activeShader].GetUniform("projectionMatrix"), false, ref v.ProjectionMatrix);
 
                 if (shaders[activeShader].GetAttribute("maintexture") != -1)
                 {
                     GL.Uniform1(shaders[activeShader].GetAttribute("maintexture"), v.TextureID);
                 }
 
-                if (shaders[activeShader].GetUniform("view") != -1)
+                if (shaders[activeShader].GetUniform("viewMatrix") != -1)
                 {
-                    GL.UniformMatrix4(shaders[activeShader].GetUniform("view"), false, ref view);
+                    GL.UniformMatrix4(shaders[activeShader].GetUniform("viewMatrix"), false, ref v.ViewMatrix);
                 }
 
-                if (shaders[activeShader].GetUniform("model") != -1)
+                if (shaders[activeShader].GetUniform("modelMatrix") != -1)
                 {
-                    GL.UniformMatrix4(shaders[activeShader].GetUniform("model"), false, ref v.ModelMatrix);
+                    GL.UniformMatrix4(shaders[activeShader].GetUniform("modelMatrix"), false, ref v.ModelMatrix);
                 }
 
                 if (shaders[activeShader].GetUniform("material_ambient") != -1)

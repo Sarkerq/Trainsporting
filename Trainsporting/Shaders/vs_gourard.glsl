@@ -32,9 +32,9 @@ uniform sampler2D maintexture;
 uniform bool hasSpecularMap;
 uniform sampler2D map_specular;
 
-uniform mat4 modelview;
-uniform mat4 model;
-uniform mat4 view;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 
 // Material information
 uniform vec3 material_ambient;
@@ -48,12 +48,12 @@ uniform Light lights[7];
 void
 main()
 {
- gl_Position = modelview * vec4(vPosition, 1.0);
+ gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vPosition, 1.0);
  f_texcoord = texcoord;
 
- mat3 normMatrix = transpose(inverse(mat3(model)));
+ mat3 normMatrix = transpose(inverse(mat3(modelMatrix)));
  vec3 v_norm = normMatrix * vNormal;
- vec3 v_pos = (model * vec4(vPosition, 1.0)).xyz;
+ vec3 v_pos = (modelMatrix * vec4(vPosition, 1.0)).xyz;
 
 
 
@@ -95,7 +95,7 @@ main()
 	diffuse_lighting[i] = (light_diffuse * vec4(material_diffuse, 0.0)) * lambertmaterial_diffuse;
 
 	// Specular lighting
-	vec3	viewvec = normalize(vec3(inverse(view) * vec4(0,0,0,1)) - v_pos); 
+	vec3 viewvec = normalize(vec3(inverse(viewMatrix) * vec4(0,0,0,1)) - v_pos); 
 	float material_specularreflection;
 	if(mode == 0) // PHONG
 	{

@@ -20,8 +20,8 @@ namespace Trainsporting
         public Vector3 Scale = Vector3.One;
 
         public Matrix4 ModelMatrix = Matrix4.Identity;
-        public Matrix4 ViewProjectionMatrix = Matrix4.Identity;
-        public Matrix4 ModelViewProjectionMatrix = Matrix4.Identity;
+        public Matrix4 ViewMatrix = Matrix4.Identity;
+        public Matrix4 ProjectionMatrix = Matrix4.Identity;
 
         public Material Material = new Material();
 
